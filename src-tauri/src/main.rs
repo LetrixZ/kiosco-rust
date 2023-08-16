@@ -144,7 +144,7 @@ fn main() {
             }
 
             let db = SqlitePool::connect(db_url).await.unwrap();
-            let migrations = std::path::Path::new("./migrations");
+            let migrations = app.path_resolver().resource_dir().unwrap().as_path().join("migrations");
             let migration_results = sqlx::migrate::Migrator::new(migrations)
               .await
               .unwrap()
