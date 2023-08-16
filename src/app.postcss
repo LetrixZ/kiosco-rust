@@ -1,0 +1,37 @@
+html,
+body {
+	@apply h-full;
+}
+
+.input,
+.input-group {
+	@apply border-2 hover:border-surface-700 focus:border-surface-700 focus-within:!border-surface-700;
+}
+
+.ks-btn {
+	@apply btn py-1.5 border border-primary-700 variant-filled;
+}
+
+.ks-btn-success {
+	@apply border-success-700 variant-filled-success text-white;
+}
+
+.ks-btn-error {
+	@apply border-error-700 variant-filled-error text-white;
+}
+
+.btn.variant-filled-success {
+	@apply text-white;
+}
+
+.item {
+	@apply odd:bg-surface-200 hover:bg-primary-300 odd:hover:bg-primary-300 focus:bg-primary-400 odd:focus:bg-primary-400;
+}
+
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button,
+input[type='number'] {
+	-webkit-appearance: none;
+	margin: 0;
+	-moz-appearance: textfield !important;
+}
