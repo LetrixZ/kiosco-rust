@@ -13,6 +13,7 @@
 <nav class="bg-primary-200 border-b border-b-surface-700 shadow-sm flex">
 	<a href="/" class:active={$page.route.id === '/'}> Venta </a>
 	<a href="/productos" class:active={$page.route.id === '/productos'}> Listado de productos </a>
+	<a href="/facturas" class:active={$page.route.id === '/facturas'}> Facturas </a>
 </nav>
 
 <div class="container mx-auto p-4">

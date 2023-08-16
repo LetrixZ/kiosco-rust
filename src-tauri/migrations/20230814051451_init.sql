@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS products(
+CREATE TABLE products(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL, 
   description TEXT NULL,
@@ -9,21 +9,24 @@ CREATE TABLE IF NOT EXISTS products(
   created_at TEXT,
   updated_at TEXT
 );
-CREATE TABLE IF NOT EXISTS invoices(
+CREATE TABLE invoices(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   total INTEGER NOT NULL,
   created_at TEXT,
   updated_at TEXT
 );
-CREATE TABLE IF NOT EXISTS invoice_lines(
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  quantity INTEGER NOT NULL,
-  price INTEGER NOT NULL,
-  invoice_id INTEGER REFERENCES facturas(id) ON DELETE CASCADE NOT NULL,
-  product_id INTEGER REFERENCES productos(id) ON DELETE SET NULL NULL,
-  created_at TEXT,
-  updated_at TEXT
+CREATE TABLE invoice_lines (
+	id	INTEGER,
+	name	TEXT NOT NULL,
+	quantity	INTEGER NOT NULL,
+	price	INTEGER NOT NULL,
+	invoice_id	INTEGER NOT NULL,
+	product_id	INTEGER,
+  created_at	TEXT,
+	updated_at	TEXT,
+	PRIMARY KEY(id AUTOINCREMENT),
+	FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE SET NULL,
+	FOREIGN KEY(invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
 );
 CREATE TRIGGER insert_timestamp_trigger_products
 AFTER INSERT ON products

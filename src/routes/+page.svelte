@@ -5,7 +5,7 @@
 	import { invoke } from '@tauri-apps/api';
 	import { onMount } from 'svelte';
 
-	let lineas: any[] = [];
+	let lines: any[] = [];
 	let query = '';
 	let inputQuery: HTMLInputElement;
 	let results: any[] = [];
@@ -26,17 +26,17 @@
 	};
 
 	const decrease = (i: number) => {
-		lineas[i].unidades--;
+		lines[i].unidades--;
 		focus();
 	};
 
 	const increase = (i: number) => {
-		lineas[i].unidades++;
+		lines[i].unidades++;
 		focus();
 	};
 
 	const remove = (i: number) => {
-		lineas = lineas.filter((_, idx) => idx !== i);
+		lines = lines.filter((_, idx) => idx !== i);
 		focus();
 	};
 
@@ -49,13 +49,13 @@
 	}
 
 	const add = (producto: any) => {
-		const lineaExistente = lineas.find((linea) => linea.producto.name === producto.name);
+		const lineaExistente = lines.find((linea) => linea.producto.name === producto.name);
 
 		if (lineaExistente) {
 			lineaExistente.unidades++;
-			lineas = lineas;
+			lines = lines;
 		} else {
-			lineas = [...lineas, { producto, unidades: 1 }];
+			lines = [...lines, { producto, unidades: 1 }];
 		}
 
 		focus();
@@ -86,13 +86,13 @@
 
 			if (showQuantiyModal) {
 				showQuantiyModal = false;
-			} else if (lineas.length) {
+			} else if (lines.length) {
 				showQuantiyModal = true;
 
 				setTimeout(
 					() =>
 						quantityModalInput &&
-						(quantityModalInput.value = lineas.at(-1).unidades) &&
+						(quantityModalInput.value = lines.at(-1).unidades) &&
 						quantityModalInput.select(),
 					0
 				);
@@ -153,9 +153,9 @@
 			return;
 		}
 
-		lineas.at(-1) && (lineas.at(-1).unidades = unidades);
+		lines.at(-1) && (lines.at(-1).unidades = unidades);
 
-		lineas = [...lineas];
+		lines = [...lines];
 	};
 
 	$: {
@@ -165,6 +165,24 @@
 	}
 
 	onMount(() => inputQuery.focus());
+
+	const createInvoice = async () => {
+		const invoice = {
+			total: lines.reduce((acc, line) => acc + line.producto.price * line.unidades, 0),
+			lines: lines.map((line) => ({
+				name: line.producto.name,
+				quantity: line.unidades,
+				price: line.producto.price,
+				product: line.producto
+			}))
+		};
+
+		await invoke('create_invoice', { invoice });
+
+		lines = [];
+	};
+
+	invoke('get_invoices').then(console.log);
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -236,10 +254,10 @@
 		</div>
 
 		<div class="flex flex-col font-medium text-2xl">
-			{#each lineas as linea, i}
+			{#each lines as linea, i}
 				<div
 					class="linea py-2 flex items-center border-b border-b-surface-700 hover:bg-primary-50"
-					class:selected={showQuantiyModal && i === lineas.length - 1}
+					class:selected={showQuantiyModal && i === lines.length - 1}
 				>
 					<span class="w-[2%] text-center">{i + 1}</span>
 					<span class="w-[60%] font-semibold">{linea.producto.name}</span>
@@ -277,11 +295,21 @@
 		<div class="flex justify-between text-5xl font-bold pt-2 px-3">
 			<span>Precio total</span>
 			<span>
-				${lineas
+				${lines
 					.reduce((acc, linea) => (acc += linea.producto.price * linea.unidades), 0)
 					.toFixed(2)}
 			</span>
 		</div>
+	</div>
+
+	<div class="w-full flex justify-end">
+		<button
+			class="btn variant-filled-secondary text-lg"
+			on:click={createInvoice}
+			disabled={!lines.length}
+		>
+			Finalizar
+		</button>
 	</div>
 </div>
 
