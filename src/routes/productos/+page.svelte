@@ -156,7 +156,7 @@
 				</div>
 				<div class="ms-auto w-fit text-sm">
 					<button class="ks-btn ks-btn-success" type="submit"> Guardar </button>
-					<button class="ks-btn ks-btn-error" type="button"> Eliminar </button>
+					<button class="ks-btn ks-btn-error variant-filled-error" type="button"> Eliminar </button>
 				</div>
 			</form>
 		</div>
