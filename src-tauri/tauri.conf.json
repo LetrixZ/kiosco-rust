@@ -7,7 +7,7 @@
 		"distDir": "../build"
 	},
 	"package": {
-		"productName": "kiosco-rust",
+		"productName": "Kiosco",
 		"version": "0.1.0"
 	},
 	"tauri": {
@@ -16,7 +16,7 @@
 		},
 		"bundle": {
 			"active": true,
-			"category": "DeveloperTool",
+			"category": "Business",
 			"copyright": "",
 			"deb": {
 				"depends": []

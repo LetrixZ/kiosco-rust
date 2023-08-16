@@ -19,8 +19,10 @@ serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.4.0", features = [] }
 tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "dev", features = ["colored"]  }
 tokio = { version = "1.28.2", features = ["macros"] }
 sqlx = { version = "0.7.1", features = ["runtime-tokio-native-tls", "sqlite"] }
+log = "0.4.20"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem and the built-in dev server is disabled.
