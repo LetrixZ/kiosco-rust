@@ -1,9 +1,10 @@
 <script lang="ts">
-	import PlusIcon from '~icons/memory/plus';
-	import MinusIcon from '~icons/memory/minus';
-	import CloseIcon from '~icons/ep/close-bold';
 	import { invoke } from '@tauri-apps/api';
 	import { onMount } from 'svelte';
+	import { slide } from 'svelte/transition';
+	import CloseIcon from '~icons/ep/close-bold';
+	import MinusIcon from '~icons/memory/minus';
+	import PlusIcon from '~icons/memory/plus';
 
 	let lines: any[] = [];
 	let query = '';
@@ -215,7 +216,11 @@
 	</form>
 
 	{#if results.length}
-		<div class="my-4 rounded border border-surface-700 overflow-hidden">
+		<div
+			in:slide={{ duration: 150 }}
+			out:slide={{ duration: 75 }}
+			class="my-4 rounded border border-surface-700 overflow-hidden"
+		>
 			<div class="max-h-96 overflow-y-auto">
 				{#each results as item, i}
 					<!-- svelte-ignore a11y-click-events-have-key-events -->

@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { Modal, initializeStores } from '@skeletonlabs/skeleton';
+	import { blur, fade, fly, slide } from 'svelte/transition';
 	import '../app.postcss';
+
+	export let data;
 
 	initializeStores();
 </script>
@@ -14,9 +17,11 @@
 	<a href="/facturas" class:active={$page.route.id === '/facturas'}> Facturas </a>
 </nav>
 
-<div class="container mx-auto p-4">
-	<slot />
-</div>
+{#key data.pathname}
+	<div class="container mx-auto p-4" in:fade|global={{ duration: 150, delay: 75 }}>
+		<slot />
+	</div>
+{/key}
 
 <style lang="postcss">
 	nav a {
