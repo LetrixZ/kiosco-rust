@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import '../theme.postcss';
-	import '@skeletonlabs/skeleton/styles/skeleton.css';
+	import { Modal, initializeStores } from '@skeletonlabs/skeleton';
 	import '../app.postcss';
-	
+
+	initializeStores();
 </script>
+
+<Modal buttonTextCancel="Cancelar" />
 
 <nav class="bg-primary-200 border-b border-b-surface-700 shadow-sm flex">
 	<a href="/" class:active={$page.route.id === '/'}> Venta </a>

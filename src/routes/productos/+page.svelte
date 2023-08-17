@@ -1,5 +1,7 @@
 <script lang="ts">
+	import ModalNewProductForm from '$lib/components/ModalNewProductForm.svelte';
 	import type { Product } from '$lib/interfaces/product';
+	import { getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import { invoke } from '@tauri-apps/api';
 	import { List } from 'svelte-virtual';
 	import MinusIcon from '~icons/memory/minus';
@@ -50,31 +52,64 @@
 	};
 
 	fetchProducts();
+
+	const modalStore = getModalStore();
+
+	const newProduct = () => {
+		new Promise<boolean>((resolve) => {
+			const modal: ModalSettings = {
+				type: 'component',
+				title: 'Nuevo producto',
+				component: {
+					ref: ModalNewProductForm
+				},
+				response: (r: boolean) => {
+					resolve(r);
+				}
+			};
+			modalStore.trigger(modal);
+		}).then(async (response: any) => {
+			if (response) {
+				const { name, description, barcode, cost, price, stock } = response;
+
+				await invoke('create_product', {
+					product: { name, description, barcode, cost, price, stock }
+				});
+
+				fetchProducts();
+			}
+		});
+	};
 </script>
 
 <div class="flex gap-x-8">
-	<div class="border border-surface-700 rounded overflow-hidden h-[80vh] w-[36rem]">
-		<List itemCount={products.length} itemSize={32}>
-			<!-- svelte-ignore a11y-click-events-have-key-events -->
-			<div
-				slot="item"
-				let:index
-				let:style
-				{style}
-				class="item flex items-center group hover:bg-primary-300 cursor-pointer"
-				class:selected={selectedIndex === index}
-				on:click={() => selectProduct(index)}
-			>
-				<span
-					class="barcode h-full w-40 flex items-center justify-center font-medium bg-primary-200 border-e border-e-surface-700"
+	<div class="space-y-2">
+		<button class="btn w-full text-xl variant-ghost flex gap-x-2" on:click={newProduct}>
+			<PlusIcon /> Nuevo producto
+		</button>
+		<div class="border border-surface-700 rounded overflow-hidden h-[80vh] w-[36rem]">
+			<List itemCount={products.length} itemSize={32}>
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
+				<div
+					slot="item"
+					let:index
+					let:style
+					{style}
+					class="item flex items-center group hover:bg-primary-300 cursor-pointer"
+					class:selected={selectedIndex === index}
+					on:click={() => selectProduct(index)}
 				>
-					{products[index].barcode}
-				</span>
-				<span class="ps-2 font-medium">
-					{products[index].name}
-				</span>
-			</div>
-		</List>
+					<span
+						class="barcode h-full w-40 flex items-center justify-center font-medium bg-primary-200 border-e border-e-surface-700"
+					>
+						{products[index].barcode}
+					</span>
+					<span class="ps-2 font-medium">
+						{products[index].name}
+					</span>
+				</div>
+			</List>
+		</div>
 	</div>
 
 	{#if selectedProduct !== null}

@@ -25,7 +25,9 @@ struct Product {
   price: f64,
   cost: f64,
   stock: i64,
+  #[serde(default)]
   created_at: String,
+  #[serde(default)]
   updated_at: String,
 }
 
@@ -184,6 +186,7 @@ fn main() {
     .invoke_handler(tauri::generate_handler![
       search,
       get_products,
+      create_product,
       save_product,
       get_invoices,
       create_invoice
@@ -196,10 +199,13 @@ fn main() {
 async fn search(query: String, state: State<'_, AppState>) -> Result<Vec<Product>, String> {
   let db = state.db.lock().await;
 
-  match sqlx::query_as::<_, Product>(r#"SELECT * FROM products WHERE name LIKE $1 LIMIT 25"#)
-    .bind(format!("%{}%", query))
-    .fetch_all(&*db)
-    .await
+  match sqlx::query_as::<_, Product>(
+    r#"SELECT * FROM products WHERE name LIKE $1 OR barcode = $2 LIMIT 25"#,
+  )
+  .bind(format!("%{}%", query))
+  .bind(&query)
+  .fetch_all(&*db)
+  .await
   {
     Ok(products) => {
       info!("Found {} products", products.len());
@@ -233,6 +239,41 @@ async fn get_products(state: State<'_, AppState>) -> Result<Vec<Product>, String
       error!("Failed to get products: {:?}", e);
 
       Err("Ocurrió un error al intentar obtener los productos.".to_string())
+    }
+  }
+}
+
+#[tauri::command]
+async fn create_product(product: Product, state: State<'_, AppState>) -> Result<(), String> {
+  let db = state.db.lock().await;
+
+  info!("Creating new product");
+
+  match sqlx::query(
+    r#"INSERT INTO products(
+      name, description, barcode, cost, price, stock
+    ) 
+    VALUES
+      ($1, $2, $3, $4, $5, $6)
+      "#,
+  )
+  .bind(&product.name)
+  .bind(&product.description)
+  .bind(&product.barcode)
+  .bind((product.cost * 100.0) as i64)
+  .bind((product.price * 100.0) as i64)
+  .bind(product.stock)
+  .execute(&*db)
+  .await
+  {
+    Ok(_) => {
+      info!("Product created succefully");
+      Ok(())
+    }
+    Err(e) => {
+      error!("Failed to create product: {:?}\nData: {:?}", e, product);
+
+      Err("Ocurrió un error al intentar crear un nuevo producto.".to_string())
     }
   }
 }
@@ -397,7 +438,7 @@ async fn create_invoice(invoice: Invoice, state: State<'_, AppState>) -> Result<
   for line in invoice.lines.unwrap() {
     let product_id: Option<i64> = match line.product {
       Some(product) => {
-        match sqlx::query(r#"UPDATE productos SET stock = stock - $2 WHERE id = $1"#)
+        match sqlx::query(r#"UPDATE products SET stock = stock - $2 WHERE id = $1"#)
           .bind(product.id)
           .bind(line.quantity)
           .execute(&*db)
